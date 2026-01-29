@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PG Hostel Manager | Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Ionicons for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <ion-icon name="home-outline"></ion-icon>
+                <span>HostelBoard</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="active" onclick="showSection('dashboard')"><ion-icon name="grid-outline"></ion-icon>
+                    Dashboard</a>
+                <a href="#" onclick="showSection('students')"><ion-icon name="people-outline"></ion-icon> Students</a>
+                <a href="#" onclick="showSection('alerts')"><ion-icon name="notifications-outline"></ion-icon> Fee
+                    Alerts</a>
+                <a href="#" onclick="showSection('food')"><ion-icon name="restaurant-outline"></ion-icon> Food Log</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Dashboard</h1>
+                <div class="user-profile">
+                    <span>Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon-box blue"><ion-icon name="people"></ion-icon></div>
+                        <div class="stat-info">
+                            <h3>Total Students</h3>
+                            <p id="total-students">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-box green"><ion-icon name="cash"></ion-icon></div>
+                        <div class="stat-info">
+                            <h3>Pending Fees</h3>
+                            <p>₹<span id="total-pending">0</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-box orange"><ion-icon name="restaurant"></ion-icon></div>
+                        <div class="stat-info">
+                            <h3>Food Cancellations</h3>
+                            <p id="today-cancellations">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Manage Students</h2>
+                    <button class="btn-primary" onclick="openModal('addStudentModal')">
+                        <ion-icon name="add"></ion-icon> Add Student
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Room</th>
+                                <th>Fee Status</th>
+                                <th>Pending Amount</th>
+                                <th>Chat ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Alerts Section -->
+            <section id="alerts" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Send Fee Alerts</h2>
+                </div>
+                <div class="card form-card">
+                    <div class="form-group">
+                        <label>Recipient</label>
+                        <select id="alert-recipient">
+                            <option value="all">All Students with Pending Fees</option>
+                            <!-- Options added by JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="alert-message"
+                            rows="4">This is a reminder to pay your pending hostel fees immediately.</textarea>
+                    </div>
+                    <button class="btn-primary" onclick="sendFeeAlert()">Send Alert via Telegram</button>
+                </div>
+            </section>
+
+            <!-- Food Section -->
+            <section id="food" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Food Cancellations Log</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Time Reported</th>
+                                <th>Chat ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="food-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addStudentModal')">&times;</span>
+            <h2>Add New Student</h2>
+            <form id="add-student-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="s-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Room Number</label>
+                    <input type="text" id="s-room" required>
+                </div>
+                <div class="form-group">
+                    <label>Telegram Chat ID</label>
+                    <input type="text" id="s-chatid" placeholder="Get from bot /start" required>
+                </div>
+                <div class="form-group">
+                    <label>Fee Details</label>
+                    <select id="s-status">
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pending Amount (₹)</label>
+                    <input type="number" id="s-amount" value="0">
+                </div>
+                <button type="submit" class="btn-primary">Add Student</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
